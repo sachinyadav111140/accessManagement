@@ -113,7 +113,7 @@ public class UserController {
             }
     )
     @PreAuthorize("isAuthenticated()")
-    @PutMapping("/{id}")
+    @PutMapping
     public ResponseEntity<UserResponse> update( @RequestBody UpdateUserDto updateUserDto)
             throws ResourceNotFoundException {
         Authentication authentication =SecurityContextHolder.getContext().getAuthentication();

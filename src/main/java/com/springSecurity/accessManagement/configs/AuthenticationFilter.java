@@ -50,7 +50,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 username = jwtTokenUtil.getUsernameFromToken(authToken);
-                log.info("username -: "+username);
             } catch (IllegalArgumentException e) {
                 log.error(JWT_ILLEGAL_ARGUMENT_MESSAGE, e);
             } catch (ExpiredJwtException e) {
