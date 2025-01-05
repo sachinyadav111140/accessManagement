@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableAsync
-@EnableJpaAuditing(auditorAwareRef = "auditorAwareImpl")
+@EnableJpaAuditing
 public class AccessManagementApplication {
 
 	public static void main(String[] args) {
