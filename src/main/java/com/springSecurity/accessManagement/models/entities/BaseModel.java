@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +14,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @MappedSuperclass
+@EntityListeners(AuditingEntityListener.class)
 public abstract class BaseModel {
 
     @Id
@@ -22,6 +26,14 @@ public abstract class BaseModel {
 
     @Column(nullable = false)
     protected LocalDateTime updatedAt;
+
+    @CreatedBy
+    @Column(nullable = false, updatable = false)
+    protected String createdBy;
+
+    @LastModifiedBy
+    @Column(nullable = false)
+    protected String updatedBy;
 
     @PrePersist
     protected void onCreate() {

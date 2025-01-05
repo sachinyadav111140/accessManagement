@@ -37,8 +37,6 @@ public class DataSeeder implements ApplicationListener<ContextRefreshedEvent> {
         loadRoles();
         permissionLoader.load();
         loadUsers();
-
-
     }
 
     private void loadRoles() {
