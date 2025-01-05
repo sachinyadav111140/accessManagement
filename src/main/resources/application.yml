@@ -1,0 +1,68 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: accessManagement
+  datasource:
+    url: jdbc:mysql://localhost:3306/accessManagement
+    username: root
+    password: Sachin@1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: emailId
+    password: KeyPass
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
+        smtp.from: fromId
+    default-encoding: UTF-8
+mail:
+  from:
+    name: Name
+
+app:
+  jwt:
+    secret:
+      key: gOwSPFWIBhOEZqi/jJ3OOyBPDdVVlVlpug1bWwdyTvA=
+  permission:
+    load:
+      mode: update
+    file:
+      name: permission.json
+  file:
+    upload-dir: ./uploads/avatars
+    storage:
+      mapping: file:/var/identity-authorization/uploads/
+  url:
+    confirm-account: http://localhost:8082/public/auth/confirm-account
+    password-reset: http://localhost:8082/public/auth/reset-password
+
+logging:
+  level:
+    org.springframework: INFO
+
+
+
+
+
