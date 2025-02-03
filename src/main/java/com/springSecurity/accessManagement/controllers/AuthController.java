@@ -89,15 +89,17 @@ public class AuthController {
     @PostMapping(value = "/register")
     public ResponseEntity<Object> register(@RequestBody CreateUserDto createUserDto) {
         try {
+            log.info("Registering new user with email: {}", createUserDto.getEmail());
             Role roleUser = roleService.findByName(ROLE_USER);
             createUserDto.setRole(roleUser);
             User user = userService.save(createUserDto);
-           eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
+            eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user));
+            log.info("User registered successfully with ID: {}", user.getId());
             return ResponseEntity.ok(user);
         } catch (ResourceNotFoundException e) {
+            log.error("Error registering user: {}", e.getMessage());
             Map<String, String> result = new HashMap<>();
             result.put("message", SWG_AUTH_REGISTER_ERROR);
-            log.error("Register User: " + ROLE_NOT_FOUND_MESSAGE);
             return ResponseEntity.badRequest().body(result);
         }
     }
@@ -125,6 +127,7 @@ public class AuthController {
     )
     @PostMapping(value = "/login")
     public ResponseEntity<Object> login(@RequestBody LoginUserDto loginUserDto) throws ResourceNotFoundException {
+        log.info("User login attempt with email: {}", loginUserDto.getEmail());
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginUserDto.getEmail(),
@@ -136,11 +139,13 @@ public class AuthController {
         Map<String, String> result = new HashMap<>();
 
         if (!user.isEnabled()) {
+            log.warn("Login attempt for deactivated account with email: {}", loginUserDto.getEmail());
             result.put(DATA_KEY, ACCOUNT_DEACTIVATED_MESSAGE);
             return ResponseEntity.badRequest().body(result);
         }
 
         if (!user.isConfirmed()) {
+            log.warn("Login attempt for unconfirmed account with email: {}", loginUserDto.getEmail());
             result.put(DATA_KEY, ACCOUNT_NOT_CONFIRMED_MESSAGE);
             return ResponseEntity.badRequest().body(result);
         }
@@ -152,6 +157,7 @@ public class AuthController {
         String refreshToken = Helpers.generateRandomString(25);
 
         refreshTokenRepository.save(new RefreshToken(refreshToken));
+        log.info("User logged in successfully with email: {}", loginUserDto.getEmail());
 
         return ResponseEntity.ok(new AuthTokenResponse(token, refreshToken, expirationDate.getTime()));
     }
@@ -175,16 +181,19 @@ public class AuthController {
     @PostMapping(value = "/confirm-account")
     public ResponseEntity<Object> confirmAccount(@RequestBody ValidateTokenDto validateTokenDto)
             throws ResourceNotFoundException {
+        log.info("Confirming account with token");
         UserAccount userAccount = userAccountService.findByToken(validateTokenDto.getToken());
         Map<String, String> result = new HashMap<>();
 
         if (userAccount.isExpired()) {
+            log.warn("Token expired for account confirmation");
             result.put(MESSAGE_KEY, TOKEN_EXPIRED_MESSAGE);
             userAccountService.delete(userAccount.getId().toString());
             return ResponseEntity.badRequest().body(result);
         }
 
         userService.confirm(userAccount.getUser().getId().toString());
+        log.info("Account confirmed successfully for user ID: {}", userAccount.getUser().getId());
         result.put(MESSAGE_KEY, ACCOUNT_CONFIRMED_MESSAGE);
         return ResponseEntity.ok(result);
     }
