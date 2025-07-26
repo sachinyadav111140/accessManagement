@@ -38,7 +38,6 @@ import static com.springSecurity.accessManagement.constants.Constants.*;
 @RequestMapping("/public/token")
 @Slf4j
 @Tag(name = SWG_TOKEN_TAG_NAME, description = SWG_TOKEN_TAG_DESCRIPTION)
-
 public class TokenController {
 
   @Autowired
@@ -74,19 +73,21 @@ public class TokenController {
   })
   @PostMapping(value = "/validate")
   public ResponseEntity<Map<String, String>> validate(@RequestBody ValidateTokenDto validateTokenDto) {
+    log.info("Validating token");
     String username = null;
     Map<String, String> result = new HashMap<>();
 
     try {
       username = jwtTokenUtil.getUsernameFromToken(validateTokenDto.getToken());
+      log.info("Token validated successfully for username: {}", username);
     } catch (IllegalArgumentException e) {
-      log.error(JWT_ILLEGAL_ARGUMENT_MESSAGE, e);
+      log.error("Illegal argument exception while validating token", e);
       result.put(MESSAGE_KEY, JWT_ILLEGAL_ARGUMENT_MESSAGE);
     } catch (ExpiredJwtException e) {
-      log.warn(JWT_EXPIRED_MESSAGE, e);
+      log.error("Expired JWT exception while validating token", e);
       result.put(MESSAGE_KEY, JWT_EXPIRED_MESSAGE);
     } catch (SignatureException e) {
-      log.error(JWT_SIGNATURE_MESSAGE);
+      log.error("Signature exception while validating token", e);
       result.put(MESSAGE_KEY, JWT_SIGNATURE_MESSAGE);
     }
 
@@ -123,22 +124,26 @@ public class TokenController {
   @PostMapping(value = "/refresh")
   public ResponseEntity<Object> refresh(@RequestBody RefreshTokenDto refreshTokenDto)
           throws ResourceNotFoundException {
+    log.info("Refreshing token");
     RefreshToken refreshToken = refreshTokenRepository.findByValue(refreshTokenDto.getToken());
     Map<String, String> result = new HashMap<>();
 
     if (refreshToken == null) {
+      log.error("Invalid refresh token");
       result.put(MESSAGE_KEY, INVALID_TOKEN_MESSAGE);
       return ResponseEntity.badRequest().body(result);
     }
 
     User user = userService.findById(refreshToken.getId().toString());
     if (user == null) {
+      log.error("User not found for refresh token");
       result.put(MESSAGE_KEY, TOKEN_NOT_FOUND_MESSAGE);
       return ResponseEntity.badRequest().body(result);
     }
 
     String token = jwtTokenUtil.createTokenFromUser(user);
     Date expirationDate = jwtTokenUtil.getExpirationDateFromToken(token);
+    log.info("Token refreshed successfully for user ID: {}", user.getId());
 
     return ResponseEntity.ok(new AuthTokenResponse(token, refreshToken.getValue(), expirationDate.getTime()));
   }

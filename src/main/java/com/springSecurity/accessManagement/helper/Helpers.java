@@ -71,4 +71,12 @@ public class Helpers {
 
         return errors;
     }
+    //write a method which can covert string into number and exception if string is not a convertStringToNumber
+    public static int convertStringToNumber(String str) {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            throw new NumberFormatException("String is not a number");
+        }
+    }
 }
