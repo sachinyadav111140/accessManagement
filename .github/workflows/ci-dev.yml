@@ -1,12 +1,12 @@
-name: Build JAR and Docker Image
+name: Build and Push Docker Image for accessManagement
 
 on:
   push:
     branches: [development]
 
 jobs:
-  build:
-    name: Build Spring Boot JAR and Docker Image
+  build-and-push:
+    name: Build & Push accessManagement Docker Image
     runs-on: ubuntu-latest
 
     steps:
@@ -22,5 +22,14 @@ jobs:
       - name: Build Spring Boot JAR
         run: ./mvnw clean install -DskipTests
 
-      - name: Build Docker Image using Dockerfile
-        run: docker build -t myapp:latest .
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/accessmanagement:latest .
+
+      - name: Push Docker Image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/accessmanagement:latest
