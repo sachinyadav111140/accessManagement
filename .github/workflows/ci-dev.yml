@@ -1,14 +1,12 @@
-name: Dev CI with SonarCloud
+name: Build JAR and Docker Image
 
 on:
   push:
     branches: [development]
-  pull_request:
-    branches: [development]
 
 jobs:
   build:
-    name: Build and SonarCloud Scan
+    name: Build Spring Boot JAR and Docker Image
     runs-on: ubuntu-latest
 
     steps:
@@ -21,22 +19,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Run Clean Install
+      - name: Build Spring Boot JAR
         run: ./mvnw clean install -DskipTests
 
-      - name: SonarCloud Analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          ./mvnw verify sonar:sonar \
-            -Dsonar.projectKey=sachinyadav111140_accessManagement \
-            -Dsonar.organization=sachinyadav9983098877 \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=$SONAR_TOKEN
+      - name: Build Docker Image using Dockerfile
+        run: docker build -t myapp:latest .
