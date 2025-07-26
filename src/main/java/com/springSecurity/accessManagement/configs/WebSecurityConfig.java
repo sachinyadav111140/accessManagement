@@ -53,6 +53,7 @@ public class WebSecurityConfig {
                                 new AntPathRequestMatcher("/public/**"),
                                 new AntPathRequestMatcher("/swagger-ui/index.html"),
                                 new AntPathRequestMatcher("/swagger-ui/**"),
+                                new AntPathRequestMatcher("/h2-console/**"),
                                 new AntPathRequestMatcher("/v3/api-docs/**"),
                                 new AntPathRequestMatcher("/swagger-resources/**"),
                                 new AntPathRequestMatcher("/webjars/**"),
@@ -62,6 +63,7 @@ public class WebSecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
+        http.headers().frameOptions().sameOrigin();
         http.exceptionHandling().authenticationEntryPoint(unauthorizedHandler);
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
